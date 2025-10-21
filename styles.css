@@ -1,0 +1,82 @@
+*{
+   box-sizing: border-box;
+}
+
+:root {
+    --white: #fff5e6;
+    --black: #1E1E1E;
+    --red:  #ff5c57;
+    --blue: #5DC1F2;
+}
+
+body {
+    background-color: var(--white);
+    font-family: "PT Serif", serif;
+    margin: 0;
+}
+
+.logo {
+    font-family: "IBM Plex Sans Devanagari", sans-serif;
+    color: var(--blue);
+    font-weight: 900;
+    margin: 0;
+}
+
+.logo span {
+    background-color: var(--blue);
+    color: var(--white);
+    margin-right: 5px;
+}
+
+a {
+    background-color: var(--blue);
+    color: var(--black);
+    padding: 10px 20px;
+    display: inline-block;
+    margin: 5px;
+    border-radius: 8px;
+    text-decoration: none;
+    border-radius: 35px;
+    height: 20vh;
+}
+
+h2 {
+    margin: 0;
+}
+
+header {
+    display: flex;
+    justify-content: space-evenly;
+    /* background-color: var(--black); */
+    width: 100vw;
+    margin: 0;
+    border-bottom: 1px solid var(--black);
+}
+
+header h1 span {
+
+}
+
+main {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+button {
+    background-color: var(--blue);
+    border: 0;
+    height: 30px;
+    border-radius: 15px;
+    margin: 5px;
+}
+
+.authB {
+    font-size: larger;
+}
+
+#auth {
+    margin-top: 40vh;
+    display: flex;
+    flex-direction: column;
+}
