@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
       <meta charset="utf-8">
-      <title>enter_name_here</title>
+      <title>SCRIPTLESS | sign in</title>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta http-equiv="X-UA-Compatible" content="ie=edge">
       <link rel="stylesheet" href="styles.css">
@@ -33,11 +33,13 @@
         <main>
             <header>
                 <h1 class="logo"><span>SCRIPT</span>LESS</h1>
+                <img src="assets/HOME-glyf.webp" alt="home glyf" id="home" width="40" height="40" class="hide">
             </header>
             <section id="auth">
                 <button id="signIn" class="authB">sign in</button>
                 <button id="signUp" class="authB">sign up</button>
             </section>
+            <a href="index.html" id="homeB" class="hide">go home</a>
 
                         <!-- This is where the FirebaseUI authentication widget will be rendered -->
             <div id="firebaseui-auth-container" style="display: none;"></div>
@@ -48,5 +50,5 @@
                 <button id="signOutButton">Sign Out</button>
 
         </main>
-    <script src="script.js"></script>
+    <script src="signInScript.js"></script>
     </body>

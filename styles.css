@@ -23,21 +23,30 @@ body {
 }
 
 .logo span {
+    padding: 0 5px;
     background-color: var(--blue);
     color: var(--white);
     margin-right: 5px;
 }
 
-a {
+section a {
     background-color: var(--blue);
     color: var(--black);
     padding: 10px 20px;
     display: inline-block;
     margin: 5px;
-    border-radius: 8px;
     text-decoration: none;
     border-radius: 35px;
     height: 20vh;
+}
+
+#homeB {
+    background-color: var(--blue);
+    color: var(--black);
+    padding: 10px 20px;
+    display: inline-block;
+    text-decoration: none;
+    border-radius: 35px;
 }
 
 h2 {
@@ -79,4 +88,8 @@ button {
     margin-top: 40vh;
     display: flex;
     flex-direction: column;
+}
+
+.hide {
+    display: none;
 }
