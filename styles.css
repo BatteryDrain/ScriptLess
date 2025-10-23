@@ -96,9 +96,9 @@ button {
 
 textarea {
     margin-top: 20px;
-    width:80vw;
+    width: 80vw;
     height: 85vh;
     border-radius: 15px;
     background-color: lightgray;
-    padding: 5px;
+    padding: 1px;
 }
