@@ -1,54 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-      <meta charset="utf-8">
-      <title>SCRIPTLESS | sign in</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta http-equiv="X-UA-Compatible" content="ie=edge">
-      <link rel="stylesheet" href="styles.css">
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Devanagari:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.css" />
-  <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
+<head>
+  <meta charset="utf-8">
+  <title>SCRIPTLESS | Sign In</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.css"/>
+</head>
+<body>
+  <main>
+    <header>
+        <h1 class="logo"><span>SCRIPT</span>LESS</h1>
+    </header>
 
+    <section id="auth">
+      <button id="signIn">Sign In</button>
+      <button id="signUp">Sign Up</button>
+    </section>
+    <a href="index.html">home</a>
+
+    <div id="firebaseui-auth-container"></div>
+
+    <div id="user-display" style="display:none;">
+      Welcome, <span id="user-email"></span>!
+      <button id="signOutButton">Sign Out</button>
+    </div>
+  </main>
+
+  <!-- Firebase (global, compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.js"></script>
+
+  <!-- Your script -->
   <script>
-    var firebaseConfig = {
+    // Initialize Firebase
+    const firebaseConfig = {
       apiKey: "AIzaSyDdmKznX5xzmetICWIaGvUx6k8v1yNWWPQ",
       authDomain: "scriptless-56525.firebaseapp.com",
-      databaseURL: "https://<DATABASE_NAME>.firebaseio.com",
-      projectId: "scriptless-56525",
-      storageBucket: "scriptless-56525.appspot.com",
-      messagingSenderId: "1098118128731",
+      projectId: "scriptless-56525"
     };
     firebase.initializeApp(firebaseConfig);
+
+    const auth = firebase.auth();
+
+    const uiConfig = {
+      callbacks: {
+        signInSuccessWithAuthResult: () => false,
+        uiShown: () => {
+          document.getElementById('signIn').style.display = 'none';
+          document.getElementById('signUp').style.display = 'none';
+        }
+      },
+      signInFlow: 'popup',
+      signInOptions: [
+        firebase.auth.EmailAuthProvider.PROVIDER_ID,
+        firebase.auth.GoogleAuthProvider.PROVIDER_ID
+      ]
+    };
+
+    const ui = new firebaseui.auth.AuthUI(auth);
+
+    document.getElementById('signIn').addEventListener('click', () => {
+      document.getElementById('firebaseui-auth-container').style.display = 'block';
+      ui.start('#firebaseui-auth-container', uiConfig);
+    });
+
+    document.getElementById('signUp').addEventListener('click', () => {
+      document.getElementById('firebaseui-auth-container').style.display = 'block';
+      ui.start('#firebaseui-auth-container', uiConfig);
+    });
+
+    auth.onAuthStateChanged(user => {
+      if(user){
+        document.getElementById('user-display').style.display = 'block';
+        document.getElementById('user-email').textContent = user.email;
+      } else {
+        document.getElementById('user-display').style.display = 'none';
+      }
+    });
+
+    document.getElementById('signOutButton').addEventListener('click', () => {
+      auth.signOut();
+    });
   </script>
-
-  <script src="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.js"></script>
-</head>
-    <body>
-        <main>
-            <header>
-                <h1 class="logo"><span>SCRIPT</span>LESS</h1>
-                <img src="assets/HOME-glyf.webp" alt="home glyf" id="home" width="40" height="40" class="hide">
-            </header>
-            <section id="auth">
-                <button id="signIn" class="authB">sign in</button>
-                <button id="signUp" class="authB">sign up</button>
-            </section>
-            <a href="index.html" id="homeB" class="hide">go home</a>
-
-                        <!-- This is where the FirebaseUI authentication widget will be rendered -->
-            <div id="firebaseui-auth-container" style="display: none;"></div>
-
-            <!-- These will show after a user logs in -->
-            <div id="user-display" style="display: none;">
-                <p>Welcome, <span id="user-email"></span>!</p>
-                <button id="signOutButton">Sign Out</button>
-
-        </main>
-    <script src="signInScript.js"></script>
-    </body>
+</body>
+</html>

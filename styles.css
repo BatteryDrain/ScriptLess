@@ -66,6 +66,12 @@ header h1 span {
 
 }
 
+#logIn {
+    background-color: var(--white);
+    border: 2px solid var(--blue);
+    border-radius: 35px;
+}
+
 main {
     display: flex;
     align-items: center;
@@ -94,11 +100,33 @@ button {
     display: none;
 }
 
-textarea {
+#scriptN {
+    width: 80px;
+    height: 20px;
+    border-radius: 15px;
+    background-color: lightgray;
+    padding: 5px;
+    margin: 0;
+    border: 0;
+}
+
+#textarea {
     margin-top: 20px;
     width: 80vw;
     height: 85vh;
     border-radius: 15px;
     background-color: lightgray;
-    padding: 1px;
+    padding: 5px;
+}
+
+.row {
+    display: flex;
+}
+
+.row p {
+    margin: 0;
+}
+
+#nameIn {
+    margin-top: 10px;
 }

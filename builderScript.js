@@ -1,102 +1,59 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import { auth, app } from "./script.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-SCRIPT = "";
-
-
-const firebaseConfig = {
-
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentUser = null;
+let SCRIPT = "";
+let SNAME = "";
+
+const textArea = document.getElementById("textarea");
+const scriptN = document.getElementById("scriptN");
+
+textArea?.addEventListener("input", () => SCRIPT = textArea.value);
+scriptN?.addEventListener("input", () => SNAME = scriptN.value);
+
+// --- Fallback: if no SCRIPT_ID, generate one ---
+let SCRIPT_ID = sessionStorage.getItem("currentScriptId");
+if (!SCRIPT_ID) {
+    SCRIPT_ID = crypto.randomUUID(); // modern browser method
+    sessionStorage.setItem("currentScriptId", SCRIPT_ID);
+    console.log("Generated new SCRIPT_ID:", SCRIPT_ID);
+}
+
+// --- Watch for login ---
 onAuthStateChanged(auth, (user) => {
-  if (user) {
-    currentUser = user;
-    console.log("User is signed in:", user.uid);
-  } else {
-    currentUser = null;
-    console.log("No user is signed in.");
+  if (user) currentUser = user;
+  else window.open("signIn.html", "_self");
+});
+
+// --- Save ---
+async function saveUserScript() {
+  if (!currentUser) return alert("User not signed in.");
+  if (!SCRIPT_ID) return alert("No script ID found!");
+
+  const scriptRef = doc(db, "ScriptSpace", currentUser.uid, "scripts", SCRIPT_ID);
+
+  try {
+    await setDoc(scriptRef, {
+      script: SCRIPT,
+      name: SNAME || "Untitled",
+      timestamp: new Date(),
+      userId: currentUser.uid,
+      scriptId: SCRIPT_ID
+    }, { merge: true });
+
+    console.log("✅ Script saved:", SCRIPT_ID);
+    alert("Script saved!");
+  } catch (err) {
+    console.error("❌ Error saving script:", err);
+    alert("Error saving script. Check console.");
   }
-});
-
-const ScriptSpace = 'ScriptSpace';
-
-
-const textArea = document.getElementById('textarea');
-
-textArea.addEventListener('input', () => {
-    properSize();
-    SCRIPT = textArea.value;
-});
-
-const saveButton = document.getElementById('save');
-if (saveButton) {
-    saveButton.addEventListener("click", async () => {
-        if (!currentUser) {
-            console.log("No user signed in. Please sign in to save data.");
-            // Optionally, show a login prompt or redirect
-            return;
-        }
-
-        if (!textArea || !textArea.value.trim()) {
-            console.warn("Text input field not found or is empty. Cannot save empty data.");
-            return;
-        }
-
-        try {
-            const docRef = await addDoc(collection(db, ScriptSpace), {
-                userId: currentUser.uid,
-                userText: textArea.value.trim(),
-                timestamp: Date.now()
-            });
-            console.log("Document successfully saved with ID: ", docRef.id);
-            textArea.value = ''; // Clear the input field after saving
-            alert("Data saved successfully!"); // Simple feedback for the user
-
-        } catch (e) {
-            console.error("Error adding document: ", e);
-            alert("Error saving data. Please try again.");
-        }
-        saveButton.innerHTML = "saved";
-    });
 }
 
-const saveNexitButton = document.getElementById('saveNexit');
-if (saveNexitButton) {
-    saveNexitButton.addEventListener("click", async () => {
-        if (!currentUser) {
-            console.log("No user signed in. Please sign in to save and exit.");
-            return;
-        }
-
-        if (!textArea || !textArea.value.trim()) {
-            console.warn("Text input field not found or is empty. Cannot save empty data.");
-            // Decide if you want to proceed with 'exit' without saving empty data
-            // For now, let's assume we want to save *something*
-            alert("Please enter some text before saving and exiting.");
-            return;
-        }
-
-        try {
-            const docRef = await addDoc(collection(db, ScriptSpace), {
-                userId: currentUser.uid,
-                userText: textArea.value.trim(),
-                timestamp: Date.now()
-            });
-            console.log("Document successfully saved and exiting with ID: ", docRef.id);
-
-            alert("Data saved successfully! Exiting...");
-            window.open("builder.html", "_self");
-            console.log("Performing exit action...");
-
-        } catch (e) {
-            console.error("Error adding document and exiting: ", e);
-            alert("Error saving data. Please try again.");
-        }
-    });
-}
+document.getElementById("save")?.addEventListener("click", saveUserScript);
+document.getElementById("saveNexit")?.addEventListener("click", async () => {
+  await saveUserScript();
+  window.open("builder.html", "_self");
+});
