@@ -72,7 +72,7 @@ header h1 span {
     border-radius: 35px;
 }
 
-main {
+.center {
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -129,4 +129,44 @@ button {
 
 #nameIn {
     margin-top: 10px;
+}
+
+figure {
+    background-color: var(--blue);
+    border-radius: 35px;
+    padding: 10px 35px;
+}
+
+figcaption {
+    text-align: center;
+}
+
+figure textarea {
+    background-color: lightgray;
+    border: 1px solid black;
+    border-radius: 20px;
+    padding: 0 20px;
+    font-size: xx-small;
+    width: 200px;
+    height: fit-content;
+}
+
+figure button {
+    background-color: var(--red);
+    border-radius: 10px;
+}
+
+.figTop {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(300px, 1fr));
+}
+
+.tile {
+
 }
