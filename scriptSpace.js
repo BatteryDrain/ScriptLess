@@ -1,6 +1,7 @@
 console.log("in scriptSpace.js");
 import { auth, app } from "./script.js";
-import { getFirestore, collection, query, where, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const db = getFirestore(app);
 
@@ -10,7 +11,7 @@ let SNAME = "";
 
 const textArea = document.getElementById("textarea");
 const scriptN = document.getElementById("scriptN");
-const scriptsList = document.getElementById("scriptsList"); // div to display saved scripts
+const scriptsList = document.getElementById("scriptsList"); // container for script figures
 
 textArea?.addEventListener("input", () => SCRIPT = textArea.value);
 scriptN?.addEventListener("input", () => SNAME = scriptN.value);
@@ -18,7 +19,6 @@ scriptN?.addEventListener("input", () => SNAME = scriptN.value);
 const SCRIPT_ID = sessionStorage.getItem("currentScriptId");
 
 // --- Watch login ---
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
@@ -49,6 +49,40 @@ async function saveUserScript() {
   await loadUserScripts(currentUser.uid); // reload list
 }
 
+// --- Make Figure for Each Script ---
+function makeFig({ name, script, place = "green", scriptId }) {
+  const fig = document.createElement('figure');
+  
+  // Top section
+  const divTop = document.createElement('div');
+  divTop.classList.add("figTop");
+  
+  const figT = document.createElement('figcaption');
+  figT.textContent = name;
+  divTop.appendChild(figT);
+  fig.appendChild(divTop);
+
+  // Body
+  const spn = document.createElement('span');
+  const p = document.createElement('p');
+  p.textContent = script.length > 120 ? script.slice(0, 120) + "..." : script;
+  spn.appendChild(p);
+  fig.appendChild(spn);
+
+  // Color code
+  if (place === "green") fig.style.backgroundColor = "rgb(115, 169, 102)";
+  if (place === "yellow") fig.style.backgroundColor = "rgb(224, 227, 62)";
+  if (place === "red") fig.style.backgroundColor = "rgb(205, 49, 49)";
+
+  // Click -> open script
+  fig.onclick = () => {
+    sessionStorage.setItem("currentScriptId", scriptId);
+    window.open("textIn.html", "_self");
+  };
+
+  scriptsList.appendChild(fig);
+}
+
 // --- Load all scripts for the user ---
 async function loadUserScripts(userId) {
   scriptsList.innerHTML = "Loading...";
@@ -64,9 +98,12 @@ async function loadUserScripts(userId) {
   scriptsList.innerHTML = "";
   scriptsSnapshot.forEach(docSnap => {
     const data = docSnap.data();
-    const p = document.createElement("p");
-    p.textContent = `${data.name} — ${new Date(data.timestamp.seconds * 1000).toLocaleString()}`;
-    scriptsList.appendChild(p);
+    makeFig({
+      name: data.name || "Untitled",
+      script: data.script || "",
+      place: "green",
+      scriptId: data.scriptId
+    });
   });
 }
 
@@ -76,35 +113,3 @@ document.getElementById("newScript")?.addEventListener("click", () => {
   sessionStorage.setItem("currentScriptId", newScriptId);
   window.open("textIn.html", "_self");
 });
-
-
-function makeFig(){
-    fig = document.createElement('figure');
-            div = document.createElement('div');
-                div.classList.add("figTop");
-                figT = document.createElement('figcaption');
-                figT.innerHTML = NAME;
-            div.appendChild(figT);
-
-            div1 = document.createElement('div');
-
-            spn = document.createElement('span');
-                p = document.createElement('p');
-                p.innerHTML = SCRIPT;
-                spn.appendChild(p);
-            fig.appendChild(spn);
-
-            fig.appendChild(div2);
-            fig.setAttribute("onclick", "goToLink(" + (insert info here) + ")");
-
-            if(place == "green"){
-                fig.style.backgroundColor = "rgb(115, 169, 102)";
-            }
-            if(place == "yellow"){
-                fig.style.backgroundColor = "rgb(224, 227, 62)";
-            }
-            if(place == "red"){
-                fig.style.backgroundColor = "rgb(205, 49, 49)";
-            }
-            colum.appendChild(fig);
-}
