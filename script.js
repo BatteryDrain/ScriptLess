@@ -22,17 +22,48 @@ if (!getApps().length) {
 const auth = getAuth(app);
 
 // --- DOM code ---
+const signIn = document.getElementById('signIn');
+const signUp = document. getElementById('signUp');
+const sigHome = document.getElementById('sigHome');
 const home = document.getElementById('home');
-if (home) {
+
+if(home) {
   home.addEventListener("click", () => {
     window.open("index.html", "_self");
   });
 }
 
+if(sigHome) {
+    if(user) {
+        if(sigHome.classList.contains('hide')){sigHome.classList.remove('hide');}
+    } else {
+        sigHome.classList.add('hide');
+    }
+}
+
+if(signIn) {
+    if(user) {
+        signIn.classList.add('hide'); 
+    } else {
+        if(signIn.classList.contains('hide')){signIn.classList.remove('hide');}
+    }
+}
+
+if(signUp) {
+    if(user) {
+        signUp.classList.add('hide'); 
+    } else {
+        if(signUp.classList.contains('hide')){signIn.classList.remove('hide');}
+    }
+}
+
+const logIn = document.getElementById('logIn');
+
 // --- handle login state ---
 onAuthStateChanged(auth, (user) => {
   if (user) {
     console.log("logged in");
+    logIn.innerHTML = "account";   
   } else {
     // Only redirect if we're NOT already on signIn.html
     if (!window.location.href.includes("signIn.html")) {
@@ -41,6 +72,8 @@ onAuthStateChanged(auth, (user) => {
     } else {
       console.log("on signIn.html — no redirect");
     }
+    logIn.innerHTML = "sign in";
+    sigHome.classList.add('hide');
   }
 });
 

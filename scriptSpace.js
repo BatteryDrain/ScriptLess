@@ -104,7 +104,7 @@ function makeFig({ name, script, place = "green", scriptId }) {
 
   // Body
   const ta = document.createElement('textarea');
-  ta.textContent = script.length > 120 ? script.slice(0, 120) + "..." : script;
+  ta.textContent = script.length > 500 ? script.slice(0, 500) + "..." : script;
   ta.disabled = true;
   fig.appendChild(ta);
 
