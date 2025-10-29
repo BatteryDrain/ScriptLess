@@ -14,20 +14,26 @@ console.log("Selected game:", selectedGame);
 
 // Handle script click
 function handleScriptClick(scriptId) {
-  if (!selectedGame) return alert("No game selected.");
+    if (!selectedGame) return alert("No game selected.");
 
-  sessionStorage.setItem("selectedScriptId", scriptId);
+    sessionStorage.setItem("selectedScriptId", scriptId);
 
-  switch (selectedGame) {
-    case "fillBlanks":
-      window.location.href = "fillBlanks.html";
-      break;
-    case "quizMode":
-      window.location.href = "quizMode.html";
-      break;
-    default:
-      alert("Unknown game mode!");
-  }
+    switch (selectedGame) {
+        case "crossword":
+        window.location.href = "crossword.html";
+        break;
+        case "flashcards":
+        window.location.href = "flashcards.html";
+        break;
+        // case "firstLetter":
+        // window.location.href = "firstLetter.html";
+        // break;
+        case "wordHide":
+        window.location.href = "wordHide.html";
+        break;
+        default:
+        alert("Unknown game mode!");
+    }
 }
 
 // Build each figure
@@ -75,3 +81,6 @@ onAuthStateChanged(auth, async (user) => {
     });
   });
 });
+
+const Gname = document.getElementById('Gname');
+Gname.innerHTML = selectedGame;

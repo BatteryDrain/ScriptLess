@@ -62,14 +62,9 @@ header {
     border-bottom: 1px solid var(--black);
 }
 
-header h1 span {
-
-}
-
 #logIn {
-    border: 2px solid var(--blue);
     border-radius: 35px;
-    padding: 0 3px;
+    padding: 3px 5px;
     background-color: var(--red);
     color: var(--white);
     text-decoration: none;
@@ -124,6 +119,7 @@ button {
 
 .row {
     display: flex;
+    flex-direction: row;
 }
 
 .row p {
@@ -181,5 +177,58 @@ figure button {
     height: 30px;
     text-decoration: none;
     border-radius: 15px;
-    padding: 0 5px;
+    padding: 2px 5px;
+    color: black;
+    width: 60px;
+    text-align: center;
+}
+
+#count {
+display: flex;
+flex-direction: row;
+margin-top: 30px;
+}
+
+canvas {
+    width: 100vw;
+    height: auto;
+    margin: 10px;
+}
+
+#out {
+    width: 100vw;
+    height: 80vh;
+}
+
+.cir {
+    height: 30px;
+    width: 30px;
+}
+
+#front {
+    background-color: lightgrey;
+    border-radius: 50px;
+}
+
+#back {
+    background-color: lightgrey;
+    border-radius: 50px;
+}
+
+figure h2 {
+    color: var(--blue);
+}
+
+@media screen and (min-width: 639px) {
+    canvas {
+        width: 80vw;
+    }
+
+    #out {
+        width: 80vw;
+    }
+
+    .cir:hover {
+        background-color: var(--red);
+    }
 }
