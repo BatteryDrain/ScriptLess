@@ -222,7 +222,8 @@ figure h2 {
 }
 
 #newScript {
-
+    color: black;
+    font-size: larger;
 }
 
 @media screen and (min-width: 639px) {
