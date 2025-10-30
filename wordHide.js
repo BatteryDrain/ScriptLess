@@ -14,7 +14,6 @@ let PRIORITIES = [];
 const CWords = ["and", "or", "but"];
 
 // UI elements
-const backb = document.getElementById("backb");
 const out = document.getElementById("out");
 const up = document.getElementById("up");
 const down = document.getElementById("down");

@@ -90,7 +90,7 @@ function makeFig({ name, script, place = "green", scriptId }) {
   divTop.appendChild(figT);
 
   const delButton = document.createElement('button');
-  delButton.innerHTML = "🗑";
+  delButton.innerHTML = "delete";
   delButton.title = "Delete script";
 
   // Prevent click on delete from opening the script
