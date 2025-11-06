@@ -19,15 +19,15 @@ function handleScriptClick(scriptId) {
     sessionStorage.setItem("selectedScriptId", scriptId);
 
     switch (selectedGame) {
-        case "crossword":
+        case "wordsearch":
         window.location.href = "crossword.html";
         break;
         case "flashcards":
         window.location.href = "flashcards.html";
         break;
-        // case "firstLetter":
-        // window.location.href = "firstLetter.html";
-        // break;
+        case "firstLetter":
+        window.location.href = "firstLetter.html";
+        break;
         case "wordHide":
         window.location.href = "wordHide.html";
         break;
