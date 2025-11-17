@@ -157,3 +157,9 @@ function autoResizeTextArea(textarea) {
     textarea.style.height = "auto";
     textarea.style.height = textarea.scrollHeight + "px";
 }
+
+window.addEventListener("load", () => {
+    if (out && out.value.trim().length > 0) {
+        autoResizeTextArea(out);
+    }
+});

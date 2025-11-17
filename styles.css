@@ -37,8 +37,16 @@ section a {
     margin: 5px;
     text-decoration: none;
     border-radius: 35px;
-    height: 20vh;
+    height: fit-content;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    color: var(--white);
 }
+
+/* section a h2 {
+    display: none;
+} */
 
 #homeB {
     background-color: var(--blue);
@@ -109,13 +117,8 @@ button {
     border: 0;
 }
 
-#textarea {
-    margin-top: 20px;
-    width: 80vw;
-    height: 85vh;
-    border-radius: 15px;
-    background-color: lightgray;
-    padding: 5px;
+#out {
+    width: 100vw;
 }
 
 .row {
@@ -129,6 +132,17 @@ button {
 
 #nameIn {
     margin-top: 10px;
+}
+
+textarea {
+    margin-top: 20px;
+    width: 80vw;
+    height: fit-content;
+    border-radius: 15px;
+    background-color: lightgray;
+    padding: 5px;
+    font-family: "PT Serif", serif;
+
 }
 
 figure {
@@ -197,11 +211,6 @@ canvas {
     margin: 10px;
 }
 
-#out {
-    width: 100vw;
-    height: 80vh;
-}
-
 .cir {
     height: 30px;
     width: 30px;
@@ -226,6 +235,13 @@ figure h2 {
     font-size: larger;
 }
 
+.icon {
+    width: 200px;
+    height: auto;
+    border-radius: 20px;
+    min-height: 20vh;
+}
+
 @media screen and (min-width: 639px) {
     canvas {
         width: 80vw;
@@ -237,5 +253,9 @@ figure h2 {
 
     .cir:hover {
         background-color: var(--red);
+    }
+
+    #out {
+        font-size: 20px;
     }
 }

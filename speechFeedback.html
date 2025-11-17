@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>SCRIPTLESS || Speech Feedback</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <!-- Reuse the main stylesheet so the new page fits the existing design -->
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Google fonts used across the site -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Devanagari:wght@100;200;300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main class="center">
+      <header>
+        <!-- Home glyph and logo to match other pages -->
+        <img
+          src="assets/HOME-glyf.webp"
+          alt="home glyf"
+          id="home"
+          width="40"
+          height="40"
+        />
+        <h1 id="" logo class="logo"><span>SCRIPT</span>LESS</h1>
+        <!-- The sign in link will be replaced with "account" when logged in via script.js -->
+        <a id="logIn" href="signIn.html">sign in</a>
+      </header>
+      <!-- Game title populated via JS based on selected game -->
+      <h2 id="Gname">Speech Feedback</h2>
+      <!-- Recording control -->
+      <button id="recordBtn" class="btn">Start Recording</button>
+      <p id="status">Click the button to start recording your speech.</p>
+      <!-- Transcript output -->
+      <textarea
+        id="transcript"
+        placeholder="Speech transcript will appear here"
+        disabled
+      ></textarea>
+      <textarea id="out" disabled></textarea>
+      <!-- Results panel -->
+      <div id="results" class="feedback hide">
+        <h3>Results</h3>
+        <p>Words per minute: <span id="wpm">0</span></p>
+        <p>Filler words: <span id="fillers">0</span></p>
+        <p>Script match: <span id="scriptMatch">N/A</span></p>
+      </div>
+    </main>
+    <!-- Firebase auth loader from script.js -->
+    <script type="module" src="script.js"></script>
+    <!-- Page specific logic -->
+    <script type="module" src="speechFeedback.js"></script>
+  </body>
+</html>

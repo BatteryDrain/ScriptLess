@@ -31,6 +31,9 @@ function handleScriptClick(scriptId) {
         case "wordHide":
         window.location.href = "wordHide.html";
         break;
+        case "speechFeedback":
+        window.location.href = "speechFeedback.html";
+        break;
         default:
         alert("Unknown game mode!");
     }

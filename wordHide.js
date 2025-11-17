@@ -24,7 +24,7 @@ const stitle = document.getElementById("stitle");
 const count = document.getElementById("count");
 const input = document.getElementById("input");
 
-// Load script from Firestore
+// --- Load script from Firestore ---
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.open("signIn.html", "_self");
@@ -45,16 +45,25 @@ onAuthStateChanged(auth, async (user) => {
         SCRIPT = scriptData.script || "";
 
         // Display the original script in the output box
-        if (out) out.value = SCRIPT;
+        if (out) {
+            out.value = SCRIPT;
+            // Wait a bit for the DOM to render, then resize properly
+            setTimeout(() => autoResizeTextArea(out), 100);
+        }
 
         // Build the versions now that the script is loaded
         list();
+
+        // Ensure textarea fits even after everything else has loaded
+        setTimeout(() => {
+            if (out) autoResizeTextArea(out);
+        }, 300);
     } else {
         alert("No such script found!");
     }
 });
 
-// Build versions list
+// --- Build versions list ---
 function list() {
     VERSION.push("");
     const temp = SCRIPT.split(" ");
@@ -85,7 +94,7 @@ function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// Navigation
+// --- Navigation buttons ---
 if (up) {
     up.addEventListener("click", () => {
         if (VERSIONNUM < VERSIONS.length - 1) VERSIONNUM++;
@@ -100,18 +109,19 @@ if (down) {
     });
 }
 
+// --- Version slider (no scroll jump) ---
 if (updown) {
-    updown.addEventListener("change", () => {
+    updown.addEventListener("input", (event) => {
+        event.preventDefault();
+        const scrollY = window.scrollY; // save current scroll position
         VERSIONNUM = Number(updown.value);
         setVersionNumber(VERSIONNUM);
+        document.activeElement.blur(); // prevent slider focus from scrolling
+        window.scrollTo(0, scrollY); // restore scroll position
     });
 }
 
-function setOut() {
-    if (out) out.value = VERSIONS[VERSIONNUM][0];
-}
-
-// Generate blanked versions
+// --- Create progressive blanked versions ---
 function makeV() {
     const baseWords = SCRIPT.split(/(\s+)/); // keep spaces
     const blankableIndexes = [];
@@ -151,13 +161,35 @@ function shuffleArray(array) {
     }
 }
 
-function setVersionNumber(number){
-    if(number == 0){
+// --- Set version and update UI ---
+function setVersionNumber(number) {
+    if (number === 0) {
         ver.innerHTML = "original";
-    }
-    else{
+    } else {
         ver.innerHTML = "version " + VERSIONNUM;
     }
     setOut();
-    updown.value = VERSIONNUM;
+    if (updown) updown.value = VERSIONNUM;
 }
+
+// --- Output update with auto height ---
+function setOut() {
+    if (out) {
+        out.value = VERSIONS[VERSIONNUM][0];
+        autoResizeTextArea(out);
+    }
+}
+
+// --- Automatically resize the textarea ---
+function autoResizeTextArea(textarea) {
+    if (!textarea) return;
+    textarea.style.height = "auto"; // reset height
+    textarea.style.height = textarea.scrollHeight + "px"; // adjust to content
+}
+
+// --- Extra protection: adjust once window fully loads ---
+window.addEventListener("load", () => {
+    if (out && out.value.trim().length > 0) {
+        autoResizeTextArea(out);
+    }
+});
