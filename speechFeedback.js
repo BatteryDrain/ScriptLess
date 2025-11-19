@@ -26,14 +26,21 @@ const fillersEl = document.getElementById("fillers");
 const scriptMatchEl = document.getElementById("scriptMatch");
 const resultsPanel = document.getElementById("results");
 
-// ⭐ ADDED: Output textarea for showing blanked → revealed script
+// Output textarea for showing blanked → revealed script
 const out = document.getElementById("out");
 
-// ⭐ ADDED: Safe auto-resize ONLY for #out
+// Safe auto-resize ONLY for #out
 function resizeOut() {
-  if (!out) return; // only touches #out, not transcript
+  if (!out) return;
   out.style.height = "auto";
   out.style.height = out.scrollHeight + "px";
+}
+
+// Safe auto-resize for transcript
+function resizeTranscript() {
+  if (!transcriptEl) return;
+  transcriptEl.style.height = "auto";
+  transcriptEl.style.height = transcriptEl.scrollHeight + "px";
 }
 
 let recognition = null;
@@ -69,33 +76,43 @@ async function loadScript(user) {
   setupBlankScript();
 }
 
-// --- Create the blanked-out version of the script ---
+// --- Create blanked-out version of script ---
 function setupBlankScript() {
-  SCRIPT_WORDS = SCRIPT.split(/\s+/);
+  SCRIPT_WORDS = SCRIPT.split(/\s+/).filter(Boolean);
   REVEALED = new Array(SCRIPT_WORDS.length).fill(false);
 
   const blanked = SCRIPT_WORDS.map((w) => "■".repeat(w.length)).join(" ");
 
-  // ⭐ ADDED: Display blanked version in #out instead of #transcript
   if (out) {
     out.value = blanked;
     resizeOut();
   }
 }
 
-// --- Reveal words in order as they’re spoken ---
+// sanitize a word (remove punctuation, lowercase)
+function sanitizeWord(w) {
+  return (w || "").toLowerCase().replace(/^[^a-z0-9']+|[^a-z0-9']+$/gi, "");
+}
+
+// --- Reveal next word only when spoken ---
 function revealWords(spokenText) {
-  const spokenWords = spokenText.toLowerCase().split(/\s+/);
-  let revealIndex = 0;
+  if (!spokenText) return;
 
-  for (let i = 0; i < SCRIPT_WORDS.length; i++) {
-    if (REVEALED[i]) continue;
-    const scriptWord = SCRIPT_WORDS[i].toLowerCase().replace(/[^a-z0-9']/g, "");
-    const spokenWord = spokenWords[revealIndex]?.replace(/[^a-z0-9']/g, "");
+  const spokenWords = spokenText
+    .toLowerCase()
+    .split(/\s+/)
+    .map(w => w.replace(/[^a-z0-9']/g, ""))
+    .filter(Boolean);
 
-    if (spokenWord === scriptWord) {
-      REVEALED[i] = true;
-      revealIndex++;
+  if (spokenWords.length === 0) return;
+
+  for (const spoken of spokenWords) {
+    const nextIdx = REVEALED.findIndex(v => v === false);
+    if (nextIdx === -1) break;
+
+    const target = sanitizeWord(SCRIPT_WORDS[nextIdx]);
+    if (spoken === target) {
+      REVEALED[nextIdx] = true;
     }
   }
 
@@ -103,7 +120,6 @@ function revealWords(spokenText) {
     REVEALED[i] ? w : "■".repeat(w.length)
   ).join(" ");
 
-  // ⭐ ADDED: Update #out instead of #transcript
   if (out) {
     out.value = updated;
     resizeOut();
@@ -142,34 +158,45 @@ function initSpeechRecognition() {
       .map((result) => result[0].transcript)
       .join(" ");
 
+    if (transcriptEl) {
+      transcriptEl.value = transcriptText;
+      resizeTranscript();
+    }
+
     revealWords(transcriptText);
   };
 
   recognition.onend = () => {
     statusEl.textContent = "Recording stopped.";
     analyzeSpeech();
-    recordBtn.disabled = false;
-    recordBtn.textContent = "Start Recording";
+    if (recordBtn) {
+      recordBtn.disabled = false;
+      recordBtn.textContent = "Start Recording";
+    }
   };
 
   recognition.onerror = (event) => {
     console.error("Speech recognition error:", event.error);
     statusEl.textContent =
       "An error occurred during speech recognition: " + event.error;
-    recordBtn.disabled = false;
-    recordBtn.textContent = "Start Recording";
+    if (recordBtn) {
+      recordBtn.disabled = false;
+      recordBtn.textContent = "Start Recording";
+    }
   };
 }
 
-// --- Analyze results ---
+// --- Analyze results (with words, fillers, and WPM) ---
 function analyzeSpeech() {
   const endTime = Date.now();
   const durationSec = (endTime - recordingStartTime) / 1000;
   const words = transcriptText.trim().split(/\s+/).filter(Boolean);
 
+  // Words per minute
   const wpm = durationSec > 0 ? Math.round((words.length / durationSec) * 60) : 0;
   wpmEl.textContent = isFinite(wpm) ? wpm : 0;
 
+  // Filler words
   const fillerWords = ["um", "uh", "like", "you", "know", "so"];
   let fillerCount = 0;
   words.forEach((w) => {
@@ -177,12 +204,12 @@ function analyzeSpeech() {
   });
   fillersEl.textContent = fillerCount;
 
+  // Script match %
   if (SCRIPT) {
     const scriptWords = SCRIPT.toLowerCase().split(/\s+/).filter(Boolean);
-    const scriptSet = new Set(scriptWords);
     let matchCount = 0;
     words.forEach((w) => {
-      if (scriptSet.has(w.toLowerCase())) matchCount++;
+      if (scriptWords.includes(w.toLowerCase())) matchCount++;
     });
     const matchPercent =
       scriptWords.length > 0
@@ -199,12 +226,14 @@ function analyzeSpeech() {
 // --- Start recording ---
 recordBtn?.addEventListener("click", () => {
   if (!recognition) return;
-  recordBtn.disabled = true;
-  recordBtn.textContent = "Recording...";
   try {
     recognition.start();
+    if (recordBtn) {
+      recordBtn.disabled = true;
+      recordBtn.textContent = "Recording...";
+    }
   } catch (err) {
-    console.error(err);
+    try { recognition.stop(); } catch (e) {}
   }
 });
 

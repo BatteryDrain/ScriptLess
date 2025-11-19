@@ -11,7 +11,26 @@ let SNAME = "";
 const textArea = document.getElementById("textarea");
 const scriptN = document.getElementById("scriptN");
 
-textArea?.addEventListener("input", () => SCRIPT = textArea.value);
+// ⭐ Added: Output textarea for script preview
+const out = document.getElementById("out");
+
+// --- Helper: Auto-resize a textarea ---
+function autoResize(el) {
+  if (!el) return;
+  el.style.height = "auto"; // reset height
+  el.style.height = el.scrollHeight + "px"; // adjust to content
+}
+
+// --- Input event handlers ---
+textArea?.addEventListener("input", () => {
+  SCRIPT = textArea.value;
+  autoResize(textArea);
+  if (out) {
+    out.value = SCRIPT; // update preview
+    autoResize(out);
+  }
+});
+
 scriptN?.addEventListener("input", () => SNAME = scriptN.value);
 
 // --- Get or create SCRIPT_ID ---
@@ -26,13 +45,13 @@ if (!SCRIPT_ID) {
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
-    await loadUserScript(); // 👈 load existing script if it exists
+    await loadUserScript();
   } else {
     window.open("signIn.html", "_self");
   }
 });
 
-// --- Load Script (when editing existing one) ---
+// --- Load Script (existing one) ---
 async function loadUserScript() {
   if (!currentUser || !SCRIPT_ID) return;
 
@@ -45,6 +64,14 @@ async function loadUserScript() {
     textArea.value = data.script || "";
     SCRIPT = data.script || "";
     SNAME = data.name || "";
+    
+    // ⭐ Auto-resize textareas after loading
+    autoResize(textArea);
+    if (out) {
+      out.value = SCRIPT;
+      autoResize(out);
+    }
+
     console.log("✅ Loaded script:", SCRIPT_ID);
   } else {
     console.log("ℹ️ No existing script found (new script).");
@@ -84,4 +111,10 @@ document.getElementById("save")?.addEventListener("click", saveUserScript);
 document.getElementById("saveNexit")?.addEventListener("click", async () => {
   await saveUserScript();
   window.open("builder.html", "_self");
+});
+
+// --- Initial auto-resize on page load ---
+window.addEventListener("DOMContentLoaded", () => {
+  autoResize(textArea);
+  if (out) autoResize(out);
 });

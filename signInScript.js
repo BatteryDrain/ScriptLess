@@ -25,10 +25,11 @@ const uiConfig = {
   signInOptions: [
     {
       provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-      requireDisplayName: true, // only asked for new accounts
+      requireDisplayName: true,
       signInMethod: firebase.auth.EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD
     },
-    firebase.auth.GoogleAuthProvider.PROVIDER_ID
+    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+    firebaseui.auth.AnonymousAuthProvider.PROVIDER_ID // ✅ Added Anonymous sign-in
   ],
   tosUrl: 'https://www.example.com/terms',
   privacyPolicyUrl: 'https://www.example.com/privacy'
@@ -53,7 +54,10 @@ auth.onAuthStateChanged(user => {
     signUpButton.style.display = 'none';
     authContainer.style.display = 'none';
     userDisplay.style.display = 'block';
-    userEmailSpan.textContent = user.email;
+
+    // Show email if available, fallback for anonymous
+    userEmailSpan.textContent = user.isAnonymous ? "Anonymous User" : user.email;
+
     sigHome?.classList.remove('hide');
   } else {
     signInButton.style.display = 'block';
