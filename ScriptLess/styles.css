@@ -1,0 +1,291 @@
+*{
+   box-sizing: border-box;
+}
+
+:root {
+    --white: #fff5e6;
+    --black: #1E1E1E;
+    --red:  #ff5c57;
+    --blue: #5DC1F2;
+}
+
+body {
+    background-color: var(--white);
+    font-family: "PT Serif", serif;
+    margin: 0;
+}
+
+.logo {
+    font-family: "IBM Plex Sans Devanagari", sans-serif;
+    color: var(--blue);
+    font-weight: 900;
+    margin: 0;
+}
+
+.logo span {
+    padding: 0 5px;
+    background-color: var(--blue);
+    color: var(--white);
+    margin-right: 5px;
+}
+
+section a {
+    background-color: var(--blue);
+    color: var(--black);
+    padding: 10px 20px;
+    display: inline-block;
+    margin: 5px;
+    text-decoration: none;
+    border-radius: 35px;
+    height: fit-content;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    color: var(--white);
+}
+
+section a h2 {
+    display: none;
+}
+
+#homeB {
+    background-color: var(--blue);
+    color: var(--black);
+    padding: 10px 20px;
+    display: inline-block;
+    text-decoration: none;
+    border-radius: 35px;
+}
+
+h2 {
+    margin: 0;
+}
+
+header {
+    display: flex;
+    justify-content: space-evenly;
+    /* background-color: var(--black); */
+    width: 100vw;
+    margin: 0;
+    border-bottom: 1px solid var(--black);
+}
+
+#logIn {
+    border-radius: 35px;
+    padding: 5px;
+    background-color: var(--red);
+    color: var(--white);
+    text-decoration: none;
+    height: 35px;
+}
+
+.center {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+button {
+    background-color: var(--blue);
+    border: 0;
+    height: 30px;
+    border-radius: 15px;
+    margin: 5px;
+}
+
+.authB {
+    font-size: larger;
+}
+
+#auth {
+    margin-top: 40vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.hide {
+    display: none;
+}
+
+#scriptN {
+    width: 80px;
+    height: 20px;
+    border-radius: 15px;
+    background-color: lightgray;
+    padding: 5px;
+    margin: 0;
+    border: 0;
+}
+
+#out {
+    width: 100vw;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.row p {
+    margin: 0;
+}
+
+#nameIn {
+    margin-top: 10px;
+}
+
+textarea {
+    margin-top: 20px;
+    width: 80vw;
+    height: fit-content;
+    border-radius: 15px;
+    background-color: lightgray;
+    padding: 5px;
+    font-family: "PT Serif", serif;
+
+}
+
+figure {
+    background-color: var(--blue);
+    border-radius: 35px;
+    padding: 10px 35px;
+    max-width: 600px;
+}
+
+figcaption {
+    text-align: center;
+}
+
+figure textarea {
+    background-color: lightgray;
+    border: 1px solid black;
+    border-radius: 20px;
+    padding: 0 20px;
+    font-size: xx-small;
+    width: 100%;
+    field-sizing: content;
+    min-height: 2em;
+}
+
+figure button {
+    background-color: var(--red);
+    border-radius: 10px;
+}
+
+.figTop {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(300px, 1fr));
+}
+
+.red {
+    background-color: var(--red);
+        font-size: larger;
+}
+
+#sigHome {
+    background-color: var(--blue);
+    height: 30px;
+    text-decoration: none;
+    border-radius: 15px;
+    padding: 2px 5px;
+    color: black;
+    width: 60px;
+    text-align: center;
+}
+
+#count {
+display: flex;
+flex-direction: row;
+margin-top: 30px;
+}
+
+canvas {
+    width: 100vw;
+    height: auto;
+    margin: 10px;
+}
+
+.cir {
+    height: 30px;
+    width: 30px;
+}
+
+#front {
+    background-color: lightgrey;
+    border-radius: 50px;
+}
+
+#back {
+    background-color: lightgrey;
+    border-radius: 50px;
+}
+
+figure h2 {
+    color: var(--blue);
+}
+
+#newScript {
+    color: black;
+    font-size: larger;
+}
+
+.icon {
+    width: 200px;
+    height: auto;
+    border-radius: 20px;
+    min-height: 20vh;
+}
+
+#comm {
+    display: flex;
+    flex-direction: column;
+}
+
+#friends {
+    width: 100vw;
+    height: 30vh;
+    background-color: lightgray;
+}
+
+#comm h2 {
+    text-align: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+@media screen and (min-width: 639px) {
+    canvas {
+        width: 80vw;
+    }
+
+    #out {
+        width: 80vw;
+    }
+
+    .cir:hover {
+        background-color: var(--red);
+    }
+
+    #out {
+        font-size: 20px;
+    }
+
+    #comm {
+        display: flex;
+        flex-direction: row;
+    }
+
+    #friends {
+        width: 30vw;
+        height: 100vh;
+    }
+}

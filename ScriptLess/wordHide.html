@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="utf-8">
+      <title>SCRIPTLESS || word hide</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="styles.css">
+    <link id="wheel" rel="icon" href="assets/scripless logo 2.webp" type="image/webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+    <body>
+        <main class="center">
+            <header>
+                <a href="games.html"><img src="assets/back.webp" alt="back arrow" width="38" height="38"></a>
+                <img src="assets/scriplessLogoTop.webp" alt="SCRIPTLESS logo" id="home" width="230" height="38">
+                <a id="logIn" href="signIn.html">sign in</a>
+            </header>
+            <h2 id="Gname"></h2>
+            <textarea id="out" disabled></textarea>
+            <div id="count">
+                <input value="0" type="range" min="0" max="" id="updown">
+                <button id="down" class="cir">-</button>
+                <button id="up" class="cir">+</button>
+                <p id="ver">original</p>
+            </div>
+
+        </main>
+        <script type="module" src="script.js"></script>
+        <script type="module" src="wordHide.js"></script>
+    </body>
+</html>
