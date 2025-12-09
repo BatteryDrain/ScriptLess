@@ -3,10 +3,11 @@
 }
 
 :root {
-    --white: #fff5e6;
+    --white: #f9e6ca;
     --black: #1E1E1E;
     --red:  #ff5c57;
     --blue: #5DC1F2;
+    --darkBlue: #1E3A8A;
 }
 
 body {
@@ -44,9 +45,9 @@ section a {
     color: var(--white);
 }
 
-/* section a h2 {
-    display: none;
-} */
+section a h2 {
+    color: var(--darkBlue);
+}
 
 #homeB {
     background-color: var(--blue);
@@ -64,7 +65,7 @@ h2 {
 header {
     display: flex;
     justify-content: space-evenly;
-    /* background-color: var(--black); */
+    background-color: var(--darkBlue);
     width: 100vw;
     margin: 0;
     border-bottom: 1px solid var(--black);
@@ -150,6 +151,7 @@ figure {
     border-radius: 35px;
     padding: 10px 35px;
     max-width: 600px;
+    filter: (18px 18px 8px --darkBlue);
 }
 
 figcaption {
@@ -242,6 +244,51 @@ figure h2 {
     min-height: 20vh;
 }
 
+#comm {
+    display: flex;
+    flex-direction: column;
+}
+
+#friends {
+    width: 100vw;
+    height: 30vh;
+    background-color: #2e54bc;
+    border-radius: 0 0 35px 35px;
+}
+
+#friends h2 {
+    color: var(--white);
+}
+
+#comm h2 {
+    text-align: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+#events {
+    width: 100%;
+}
+
+.edit {
+    background-color: var(--darkBlue);
+    color: white;
+}
+
+.colum {
+    display: flex;
+    flex-direction: column;
+}
+
+#pfp {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
 @media screen and (min-width: 639px) {
     canvas {
         width: 80vw;
@@ -257,5 +304,16 @@ figure h2 {
 
     #out {
         font-size: 20px;
+    }
+
+    #comm {
+        display: flex;
+        flex-direction: row;
+    }
+
+    #friends {
+        width: 30vw;
+        height: 95vh;
+        border-radius: 0 35px 35px 0;
     }
 }
