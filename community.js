@@ -19,7 +19,7 @@ const db = getFirestore(app);
 const eventsContainer = document.getElementById("events");
 
 // -------- MAKE EVENT CARDS -------------
-function makeFig(title, time, description, address, location, creatorUid, eventId, currentUid) {
+function makeFig(title, time, description, creatorUid, eventId, currentUid, address = "", location = "", creatorName = ""){
     const fig = document.createElement('figure');
     fig.classList.add("fig");
     fig.dataset.id = eventId;
@@ -28,6 +28,15 @@ function makeFig(title, time, description, address, location, creatorUid, eventI
     const figT = document.createElement('figcaption');
     figT.innerHTML = `${title}<br><span class="time">${time}</span>`;
     fig.appendChild(figT);
+
+    // ----- CREATOR NAME -----
+if (creatorName) {
+    const madeBy = document.createElement("p");
+    madeBy.classList.add("creator");
+    madeBy.textContent = "Hosted by: " + creatorName;
+    fig.appendChild(madeBy);
+}
+
 
     // Description
     if (description) {
@@ -115,38 +124,45 @@ async function loadEvents(currentUid) {
     const content = document.getElementById("content");
     content.innerHTML = "";
 
-    snapshot.forEach(docSnap => {
+    for (const docSnap of snapshot.docs) {
         const data = docSnap.data();
 
+        // ----------- FETCH CREATOR NAME ----------
+        let creatorName = "";
+
+        try {
+            const userRef = doc(db, "Users", data.userId);
+            const userSnap = await getDoc(userRef);
+
+            if (userSnap.exists()) {
+                const u = userSnap.data();
+                creatorName = u.username || u.email || "Unknown user";
+            } else {
+                // fallback if no Users collection entry exists
+                creatorName = data.userEmail || "Unknown user";
+            }
+        } catch (err) {
+            console.error("Error loading creator username:", err);
+            creatorName = "Unknown user";
+        }
+
+        // ------------ BUILD FIGURE (CORRECT ORDER!) ------------
         const fig = makeFig(
             data.title || "Untitled event",
             data.dateTime || "",
             data.description || "",
-            data.address || "",
-            data.location || "",
             data.userId,
             docSnap.id,
-            currentUid
+            currentUid,
+            data.address || "",
+            data.location || "",
+            creatorName
         );
 
         content.appendChild(fig);
-    });
-
-    // NOW attach listeners to edit & delete buttons
-    document.querySelectorAll(".edit").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const eventId = btn.closest("figure").dataset.id;
-            editEvent(eventId);
-        });
-    });
-
-    document.querySelectorAll(".delete").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const eventId = btn.closest("figure").dataset.id;
-            deleteEvent(eventId);
-        });
-    });
+    }
 }
+
 
 // -------- AUTH LISTENER -----------------
 onAuthStateChanged(auth, (user) => {
