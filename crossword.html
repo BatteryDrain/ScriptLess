@@ -19,9 +19,23 @@
                 <img src="assets/scriplessLogoTop.webp" alt="SCRIPTLESS logo" id="home" width="230" height="38">
                 <a id="logIn" href="signIn.html">sign in</a>
             </header>
-            <h2 id="Gname"></h2>
-            <canvas id="canvas" width="600" height="600"></canvas>
-            <ol id="list"></ol>
+            <div class="board-container">
+                <h2 id="Gname"></h2>
+                <div class="board-container">
+                    <div id="grid"></div>
+                </div>
+                <aside class="sidebar">
+                    <div id="message"></div>
+                    <h2>Find These Words</h2>
+                    <ul id="word-list"></ul>
+                    <p class="tips">
+                        ✅ Words can be hidden <strong>horizontally, vertically, or diagonally</strong>, forwards or backwards.
+                        <br>
+                        💡 Drag from the first letter to the last letter. If it's a word, it will lock in green.
+                    </p>
+                    <button id="reset-btn" type="button">↻ New selection</button>
+                </aside>
+            </div>
         </main>
         <script type="module" src="script.js"></script>
         <script type="module" src="crossword.js"></script>

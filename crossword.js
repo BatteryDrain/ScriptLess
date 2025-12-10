@@ -14,21 +14,18 @@ const EXCLUDED_WORDS = [
 ];
 let WORDSF = [];
 
-
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.open("signIn.html", "_self");
         return;
     }
 
-    // Get the selected script ID
     const scriptId = sessionStorage.getItem("selectedScriptId");
     if (!scriptId) {
         alert("No script selected!");
         return;
     }
 
-    // Get script document from Firestore
     const scriptRef = doc(db, "ScriptSpace", user.uid, "scripts", scriptId);
     const scriptSnap = await getDoc(scriptRef);
 
@@ -36,109 +33,226 @@ onAuthStateChanged(auth, async (user) => {
         const scriptData = scriptSnap.data();
         const scriptText = scriptData.script || "";
 
-        // Split into words
-        WORDS = scriptText.split(/\s+/).filter(Boolean); // splits on any whitespace
-        // console.log("WORDS:", WORDS);
+        WORDS = scriptText.split(/\s+/).filter(Boolean);
     } else {
         console.log("No such script found!");
+        return;
     }
 
-for (let i = 0; i < WORDS.length; i++) {
-    const rawWord = WORDS[i];
-
-    const allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let cleanWord = "";
-    for (let char of rawWord) {
-        if (allowedChars.includes(char)) {
-            cleanWord += char;
+    // Clean words, remove excluded ones, and filter by length
+    for (let rawWord of WORDS) {
+        const cleanWord = rawWord.replace(/[^a-zA-Z]/g, "");
+        const lowerWord = cleanWord.toLowerCase();
+        if (cleanWord.length > 2 && !EXCLUDED_WORDS.includes(lowerWord)) {
+            WORDSF.push(cleanWord.toUpperCase());
         }
     }
 
-    const lowerWord = cleanWord.toLowerCase();
-    const isValid = cleanWord.length > 2 && !EXCLUDED_WORDS.includes(lowerWord);
+    // Take a maximum of 12 words for the 12x12 grid
+    const puzzleWords = WORDSF.slice(0, 12);
 
-    if (isValid) {
-        WORDSF.push(cleanWord);
+    // Generate a simple 12x12 grid filled with random letters
+    const gridSize = 12;
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const gridData = Array.from({ length: gridSize }, () =>
+        Array.from({ length: gridSize }, () => alphabet[Math.floor(Math.random() * alphabet.length)])
+    );
+
+    // Randomly place words in the grid (forwards only, horizontal, vertical, diagonal)
+    for (let word of puzzleWords) {
+        let placed = false;
+        let attempts = 0;
+        while (!placed && attempts < 50) {
+            attempts++;
+            const dir = Math.floor(Math.random() * 3); // 0=horizontal,1=vertical,2=diagonal
+            let row = Math.floor(Math.random() * gridSize);
+            let col = Math.floor(Math.random() * gridSize);
+
+            if ((dir === 0 && col + word.length <= gridSize) || 
+                (dir === 1 && row + word.length <= gridSize) ||
+                (dir === 2 && col + word.length <= gridSize && row + word.length <= gridSize)) {
+
+                let canPlace = true;
+                for (let i = 0; i < word.length; i++) {
+                    const r = row + (dir === 1 || dir === 2 ? i : 0);
+                    const c = col + (dir === 0 || dir === 2 ? i : 0);
+                    if (gridData[r][c] !== alphabet[Math.floor(Math.random() * alphabet.length)]) continue;
+                }
+
+                for (let i = 0; i < word.length; i++) {
+                    const r = row + (dir === 1 || dir === 2 ? i : 0);
+                    const c = col + (dir === 0 || dir === 2 ? i : 0);
+                    gridData[r][c] = word[i];
+                }
+                placed = true;
+            }
+        }
     }
-}
 
-    window.WORDS = WORDS;
-    window.WORDSF = WORDSF;
-
-    let val = 40;
-
-    drawCrossword(WORDSF.slice(0, val));
-
-    const ol = document.getElementById("list");
-
-    for(let i=0; i<val; i++){
-        let li = document.createElement('li');
-        li.textContent = WORDSF[i];
-        ol.appendChild(li);
-    }
+    // Render grid and word list
+    renderWordList(puzzleWords);
+    renderGrid(gridData, puzzleWords);
 });
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const gridElement = document.getElementById("grid");
+const wordListElement = document.getElementById("word-list");
+const messageElement = document.getElementById("message");
+const resetBtn = document.getElementById("reset-btn");
 
-function drawCrossword(words) {
-  const gridSize = 20;        // number of rows/columns
-  const cellSize = 30;        // pixels per cell
-  const grid = Array.from({ length: gridSize }, () =>
-    Array(gridSize).fill(null)
-  );
+let isMouseDown = false;
+let startCell = null;
+let pathCells = [];
+const foundWords = new Set();
 
-  // Place each word
-  let x = 0;
-  let y = 0;
-
-  for (let word of words) {
-    const dir = Math.floor(Math.random() * 3); // 0=horizontal,1=vertical,2=diagonal
-    let dx = 0, dy = 0;
-
-    if (dir === 0) { dx = 1; dy = 0; }       // horizontal
-    else if (dir === 1) { dx = 0; dy = 1; }  // vertical
-    else { dx = 1; dy = 1; }                 // diagonal
-
-    // Adjust starting position if word would overflow
-    if (x + dx * word.length >= gridSize) x = 0;
-    if (y + dy * word.length >= gridSize) y = 0;
-
-    // Place the word
-    for (let i = 0; i < word.length; i++) {
-      grid[y + i * dy][x + i * dx] = word[i].toUpperCase();
-    }
-
-    // Move start position for next word (random-ish)
-    x = (x + 3) % gridSize;
-    y = (y + 2) % gridSize;
-  }
-
-  // Fill empty cells with random letters
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  for (let row = 0; row < gridSize; row++) {
-    for (let col = 0; col < gridSize; col++) {
-      if (!grid[row][col]) {
-        const randIndex = Math.floor(Math.random() * alphabet.length);
-        grid[row][col] = alphabet[randIndex];
-      }
-    }
-  }
-
-  // Draw grid and letters
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.font = "20px 'IBM Plex Sans Devanagari'";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  for (let row = 0; row < gridSize; row++) {
-    for (let col = 0; col < gridSize; col++) {
-      const xPos = col * cellSize;
-      const yPos = row * cellSize;
-      ctx.strokeRect(xPos, yPos, cellSize, cellSize);
-      const letter = grid[row][col];
-      if (letter) ctx.fillText(letter, xPos + cellSize / 2, yPos + cellSize / 2);
-    }
-  }
+function renderWordList(words) {
+    wordListElement.innerHTML = "";
+    words.forEach(word => {
+        const li = document.createElement("li");
+        li.textContent = word;
+        li.dataset.word = word;
+        wordListElement.appendChild(li);
+    });
 }
 
+function renderGrid(gridData, words) {
+    gridElement.innerHTML = "";
+    gridElement.style.gridTemplateColumns = `repeat(${gridData[0].length}, 2.4rem)`;
+
+    gridData.forEach((rowString, rowIndex) => {
+        rowString.forEach((letter, colIndex) => {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.textContent = letter;
+            cell.dataset.row = rowIndex;
+            cell.dataset.col = colIndex;
+
+            cell.addEventListener("mousedown", handleMouseDown);
+            cell.addEventListener("mouseenter", handleMouseEnter);
+
+            gridElement.appendChild(cell);
+        });
+    });
+
+    document.addEventListener("mouseup", handleMouseUp);
+}
+
+function handleMouseDown(e) {
+    e.preventDefault();
+    if (this.classList.contains("found")) return;
+
+    clearTempSelection();
+    isMouseDown = true;
+    startCell = this;
+    pathCells = [this];
+    this.classList.add("selected");
+    messageElement.textContent = "";
+}
+
+function handleMouseEnter() {
+    if (!isMouseDown || !startCell) return;
+    if (this.classList.contains("found")) return;
+
+    if (!pathCells.includes(this)) pathCells.push(this);
+
+    clearTempSelection();
+    pathCells.forEach(c => {
+        if (!c.classList.contains("found")) c.classList.add("selected");
+    });
+}
+
+function handleMouseUp() {
+    if (!isMouseDown || !startCell || pathCells.length < 2) {
+        clearTempSelection();
+        isMouseDown = false;
+        startCell = null;
+        pathCells = [];
+        return;
+    }
+
+    const endCell = pathCells[pathCells.length - 1];
+    const wordInfo = getWordFromSelection(startCell, endCell);
+
+    if (wordInfo && WORDSF.includes(wordInfo.word)) {
+        lockInWord(wordInfo);
+    } else if (wordInfo && WORDSF.includes(wordInfo.wordReversed)) {
+        lockInWord({ ...wordInfo, word: wordInfo.wordReversed });
+    } else {
+        clearTempSelection();
+        messageElement.textContent = "Not a hidden word. Try again!";
+        messageElement.style.color = "var(--red)";
+    }
+
+    isMouseDown = false;
+    startCell = null;
+    pathCells = [];
+}
+
+function clearTempSelection() {
+    document.querySelectorAll(".cell.selected").forEach(cell => cell.classList.remove("selected"));
+}
+
+function getCellAt(row, col) {
+    return gridElement.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+}
+
+function getWordFromSelection(start, end) {
+    const r1 = parseInt(start.dataset.row, 10);
+    const c1 = parseInt(start.dataset.col, 10);
+    const r2 = parseInt(end.dataset.row, 10);
+    const c2 = parseInt(end.dataset.col, 10);
+
+    const dr = r2 - r1;
+    const dc = c2 - c1;
+
+    if (dr === 0 && dc === 0) return null;
+
+    const stepR = Math.sign(dr);
+    const stepC = Math.sign(dc);
+    const lenR = Math.abs(dr);
+    const lenC = Math.abs(dc);
+    const steps = Math.max(lenR, lenC);
+
+    if (!(stepR === 0 || stepC === 0 || lenR === lenC)) return null;
+
+    let word = "";
+    const cellsInLine = [];
+
+    for (let i = 0; i <= steps; i++) {
+        const rr = r1 + stepR * i;
+        const cc = c1 + stepC * i;
+        const cell = getCellAt(rr, cc);
+        if (!cell) return null;
+        cellsInLine.push(cell);
+        word += cell.textContent;
+    }
+
+    return {
+        word,
+        wordReversed: word.split("").reverse().join(""),
+        cells: cellsInLine
+    };
+}
+
+function lockInWord(wordInfo) {
+    wordInfo.cells.forEach(cell => {
+        cell.classList.remove("selected");
+        cell.classList.add("found");
+    });
+
+    foundWords.add(wordInfo.word);
+
+    const li = wordListElement.querySelector(`li[data-word="${wordInfo.word}"]`);
+    if (li) li.classList.add("word-found");
+
+    messageElement.textContent = `Nice! You found "${wordInfo.word}".`;
+    messageElement.style.color = "var(--blue)";
+
+    if (foundWords.size === WORDSF.length) {
+        messageElement.textContent = "🎉 You found all the words! Great job!";
+    }
+}
+
+resetBtn.addEventListener("click", () => {
+    clearTempSelection();
+    messageElement.textContent = "";
+});

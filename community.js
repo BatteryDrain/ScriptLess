@@ -19,33 +19,45 @@ const db = getFirestore(app);
 const eventsContainer = document.getElementById("events");
 
 // -------- MAKE EVENT CARDS -------------
-function makeFig(title, time, description, creatorUid, eventId, currentUid, address = "", location = "", creatorName = ""){
+function makeFig(
+    title, time, description,
+    creatorUid, eventId, currentUid,
+    address = "", location = "",
+    creatorName = "", creatorPfp = ""
+){
     const fig = document.createElement('figure');
     fig.classList.add("fig");
     fig.dataset.id = eventId;
 
-    // Title and time
     const figT = document.createElement('figcaption');
     figT.innerHTML = `${title}<br><span class="time">${time}</span>`;
     fig.appendChild(figT);
 
-    // ----- CREATOR NAME -----
-if (creatorName) {
-    const madeBy = document.createElement("p");
-    madeBy.classList.add("creator");
-    madeBy.textContent = "Hosted by: " + creatorName;
-    fig.appendChild(madeBy);
-}
+    // --- HOST NAME + PFP ---
+    if (creatorName) {
+        const madeBy = document.createElement("p");
+        madeBy.classList.add("creator");
 
+        if (creatorPfp) {
+            const img = document.createElement("img");
+            img.src = "assets/" + creatorPfp + ".png";
+            img.alt = creatorName + " profile picture";
+            img.classList.add("creator-pfp");
+            madeBy.appendChild(img);
+        }
 
-    // Description
+        const txt = document.createTextNode("Hosted by: " + creatorName);
+        madeBy.appendChild(txt);
+
+        fig.appendChild(madeBy);
+    }
+
     if (description) {
         const pDesc = document.createElement('p');
         pDesc.textContent = description;
         fig.appendChild(pDesc);
     }
 
-    // Address
     if (address) {
         const pAddr = document.createElement('p');
         pAddr.textContent = "📍" + address;
@@ -53,7 +65,6 @@ if (creatorName) {
         fig.appendChild(pAddr);
     }
 
-    // Location name
     if (location) {
         const pLoc = document.createElement('p');
         pLoc.textContent = location;
@@ -61,7 +72,6 @@ if (creatorName) {
         fig.appendChild(pLoc);
     }
 
-    // Buttons wrapper
     const div = document.createElement("div");
     div.classList.add("divB", "row");
 
@@ -78,9 +88,9 @@ if (creatorName) {
     div.appendChild(deleteBtn);
 
     fig.appendChild(div);
-
     return fig;
 }
+
 
 // ----------------- DELETE -----------------
 async function deleteEvent(eventId) {
@@ -116,53 +126,55 @@ addEventBtn.addEventListener("click", (e) => {
     }
 });
 
+const eventsRef = collection(db, "Events");
+const snapshot = await getDocs(eventsRef);
+
 // -------- LOAD EVENTS -------------------
 async function loadEvents(currentUid) {
-    const eventsCol = collection(db, "events");
-    const snapshot = await getDocs(eventsCol);
+  try {
+    const eventsRef = collection(db, "events"); // collection name is lowercase
+    const snapshot = await getDocs(eventsRef);
 
-    const content = document.getElementById("content");
-    content.innerHTML = "";
+    eventsContainer.innerHTML = ""; // clear old events
 
+    // Use for...of to handle async properly
     for (const docSnap of snapshot.docs) {
-        const data = docSnap.data();
+      const eventData = docSnap.data();
+      const creatorId = eventData.userId;
 
-        // ----------- FETCH CREATOR NAME ----------
-        let creatorName = "";
+      // Fetch creator profile
+      const creatorRef = doc(db, "Users", creatorId);
+      const creatorDoc = await getDoc(creatorRef);
 
-        try {
-            const userRef = doc(db, "Users", data.userId);
-            const userSnap = await getDoc(userRef);
+      let creatorName = "";
+      let creatorPfp = "";
 
-            if (userSnap.exists()) {
-                const u = userSnap.data();
-                creatorName = u.username || u.email || "Unknown user";
-            } else {
-                // fallback if no Users collection entry exists
-                creatorName = data.userEmail || "Unknown user";
-            }
-        } catch (err) {
-            console.error("Error loading creator username:", err);
-            creatorName = "Unknown user";
-        }
+      if (creatorDoc.exists()) {
+        const u = creatorDoc.data();
+        creatorName = u.username || ""; // fallback to empty string
+        creatorPfp = u.pictSelect || "";
+      }
 
-        // ------------ BUILD FIGURE (CORRECT ORDER!) ------------
-        const fig = makeFig(
-            data.title || "Untitled event",
-            data.dateTime || "",
-            data.description || "",
-            data.userId,
-            docSnap.id,
-            currentUid,
-            data.address || "",
-            data.location || "",
-            creatorName
-        );
+      const fig = makeFig(
+        eventData.title || "Untitled",
+        eventData.dateTime || "",
+        eventData.description || "",
+        creatorId,
+        docSnap.id,
+        currentUid,
+        eventData.address || "",
+        eventData.location || "",
+        creatorName,
+        creatorPfp
+      );
 
-        content.appendChild(fig);
+      eventsContainer.appendChild(fig);
     }
-}
 
+  } catch (err) {
+    console.error("Error loading events:", err);
+  }
+}
 
 // -------- AUTH LISTENER -----------------
 onAuthStateChanged(auth, (user) => {

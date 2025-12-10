@@ -1,6 +1,8 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+// --- Firebase config ---
 const firebaseConfig = {
   apiKey: "AIzaSyDdmKznX5xzmetICWIaGvUx6k8v1yNWWPQ",
   authDomain: "scriptless-56525.firebaseapp.com",
@@ -10,52 +12,58 @@ const firebaseConfig = {
   appId: "1:1098118128731:web:1f1ff538c82346c836cb7e"
 };
 
-let app;
-if (!getApps().length) {
-  app = initializeApp(firebaseConfig);
-} else {
-  app = getApps()[0];
-}
-
+// --- Initialize app ---
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+const db = getFirestore(app);
 const auth = getAuth(app);
 
-const signIn = document.getElementById("signIn");
-const signUp = document.getElementById("signUp");
-const sigHome = document.getElementById("sigHome");
-const home = document.getElementById("home");
-const logIn = document.getElementById("logIn");
+// --- DOM elements ---
+const topPFP = document.getElementById("topPFP");
+const pictSelectEl = document.getElementById("pictSelect"); // user selects PFP in settings
 
-if (home) {
-  home.addEventListener("click", () => {
-    window.open("index.html", "_self");
-  });
-}
-
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    console.log("logged in");
-    if (logIn) logIn.innerHTML = "account";
-
-    if (sigHome && sigHome.classList.contains("hide")) sigHome.classList.toggle("hide");
-    if (signIn && !signIn.classList.contains("hide")) signIn.classList.toggle("hide");
-    if (signUp && !signUp.classList.contains("hide")) signUp.classList.toggle("hide");
-  } else {
-    console.log("not logged in");
-
-    if (!window.location.href.includes("signIn.html")) {
-      console.log("redirecting to signIn.html");
-      window.open("signIn.html", "_self");
-    } else {
-      console.log("already on signIn.html — no redirect");
+// --- Listen to auth changes ---
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    if (topPFP) {
+      topPFP.src = "assets/pfp-red.png";
+      topPFP.parentElement.href = "signIn.html";
     }
+    return;
+  }
 
-    if (logIn) logIn.innerHTML = "sign in";
+  if (topPFP) topPFP.parentElement.href = "profile.html";
 
-    if (sigHome && !sigHome.classList.contains("hide")) sigHome.classList.toggle("hide");
-    if (signIn && signIn.classList.contains("hide")) signIn.classList.toggle("hide");
-    if (signUp && signUp.classList.contains("hide")) signUp.classList.toggle("hide");
+  // Load initial PFP from Firestore
+  try {
+    const userDocRef = doc(db, "Users", user.uid);
+    const snap = await getDoc(userDocRef);
+    if (snap.exists()) {
+      const data = snap.data();
+      if (topPFP) topPFP.src = `assets/${data.pictSelect || "pfp-red"}.png`;
+      if (pictSelectEl) pictSelectEl.value = data.pictSelect || "pfp-red";
+    }
+  } catch (err) {
+    console.error("Error loading user PFP:", err);
   }
 });
 
-// --- export app & auth ---
+// --- Update top PFP when user selects a new one ---
+if (pictSelectEl) {
+  pictSelectEl.addEventListener("change", async () => {
+    const newPFP = pictSelectEl.value;
+    if (topPFP) topPFP.src = `assets/${newPFP}.png`; // update top PFP immediately
+
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const userDocRef = doc(db, "Users", user.uid);
+      await setDoc(userDocRef, { pictSelect: newPFP }, { merge: true });
+    } catch (err) {
+      console.error("Error saving new PFP:", err);
+    }
+  });
+}
+
+// --- Export app & auth ---
 export { app, auth };

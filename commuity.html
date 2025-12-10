@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="stylesheet" href="styles.css">
-    <link id="wheel" rel="icon" href="assets/scripless logo 2.webp">
+    <link id="wheel" rel="icon" href="assets/scripless logo 2.webp" type="image/webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
@@ -22,10 +22,14 @@
             <section id="comm">
                 <asside id="friends">
                     <h2>friends</h2>
+                    <div>
+                        <input type="text">
+                        <img src="assets/search white.webp" id="searchF" alt="search glyf">
+                    </div>
 
                 </asside>
                     <div class="colum">
-                        <div id="rowOc">
+                        <div class="rowOc">
                             <div class="row">
                                 <h2>events</h2>
                                 <button id="addEvent">add event</button>
@@ -44,14 +48,13 @@
                                     <option value="pfp-blue">blue</option>
                                     <option value="pfp-dblue">dark blue</option>
                                 </select>
-                                <img id="pfp" src="assets/pfp-pink.png" alt="profile picture" width="40" height="40">
+                                <img id="pfp" class="pfp" src="assets/pfp-red.png" alt="profile picture" width="40" height="40">
                             </div>
                         </div>
-                <div id="content">
-
-                </div>
+                <div id="events"></div>
             </section>
         </main>
     <script type="module" src="script.js"></script>
     <script type="module" src="community.js"></script>
+    <!-- <script type="module" src="test.js"></script> -->
     </body>
