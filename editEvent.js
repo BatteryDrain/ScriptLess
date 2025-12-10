@@ -22,51 +22,6 @@ const addressError = document.getElementById("addressError");
 let currentUser = null;
 let loadedEventId = null;
 
-/* ---------------- ADDRESS VALIDATION ---------------- */
-async function validateAddress(address) {
-  const url =
-    `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(address)}&limit=1`;
-
-  try {
-    const response = await fetch(url, {
-      headers: {
-        "Accept-Language": "en",
-        "User-Agent": "SCRIPTLESS/1.0 (contact@example.com)"
-      }
-    });
-
-    if (!response.ok) return null;
-
-    const data = await response.json();
-    if (!data.length) return null;
-
-    const result = data[0];
-    const addr = result.address || {};
-
-    const hasRoad = !!(addr.road || addr.street || addr.residential);
-    const hasCity = !!(addr.city || addr.town || addr.village);
-    const hasCountry = !!addr.country;
-    const hasNumber = !!addr.house_number;
-    const hasPostcode = !!addr.postcode;
-    const numberInDisplay = /\b\d{1,5}\b/.test(result.display_name);
-
-    if (hasRoad && hasCity && hasCountry &&
-        (hasNumber || hasPostcode || numberInDisplay)) {
-      return result;
-    }
-
-    if (hasRoad && hasCountry && hasPostcode) {
-      return result;
-    }
-
-    return null;
-
-  } catch (err) {
-    console.error("Address validation error:", err);
-    return null;
-  }
-}
-
 /* ---------------- LOAD EVENT DATA ---------------- */
 async function loadEvent(id) {
   const ref = doc(db, "events", id);
@@ -74,7 +29,7 @@ async function loadEvent(id) {
 
   if (!snap.exists()) {
     alert("Event not found.");
-    window.location.href = "community.html";
+    window.location.href = "commuity.html";
     return;
   }
 
@@ -83,8 +38,14 @@ async function loadEvent(id) {
   titleInput.value = data.title || "";
   addressInput.value = data.address || "";
   locationInput.value = data.location || "";
-  dateInput.value = data.dateTime || "";
   descInput.value = data.description || "";
+
+  // prefill date/time in proper format for input[type=datetime-local]
+  if (data.dateTime) {
+    const dt = new Date(data.dateTime);
+    const localISO = dt.toISOString().slice(0,16);
+    dateInput.value = localISO;
+  }
 }
 
 /* ---------------- SUBMIT EDIT ---------------- */
@@ -103,28 +64,20 @@ form.addEventListener("submit", async (e) => {
   const dateTime = dateInput.value;
   const description = descInput.value.trim();
 
-  const validAddress = await validateAddress(address);
-  if (!validAddress) {
-    addressError.textContent = "⚠ Please enter a valid address.";
-    return;
-  }
-
   try {
     await updateDoc(doc(db, "events", loadedEventId), {
       title,
       address,
       location,
       dateTime,
-      description,
-      lat: validAddress.lat,
-      lon: validAddress.lon
+      description
     });
 
     alert("Event updated!");
-    window.location.href = "community.html";
+    window.location.href = "commuity.html";
 
   } catch (err) {
-    console.error(err);
+    console.error("Failed to update event:", err);
     alert("Failed to update event.");
   }
 });
@@ -139,7 +92,7 @@ onAuthStateChanged(auth, (user) => {
 
   if (!eventId) {
     alert("Missing event ID.");
-    window.location.href = "community.html";
+    window.location.href = "commuity.html";
     return;
   }
 
