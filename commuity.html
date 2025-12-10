@@ -16,15 +16,15 @@
         <main>
             <header>
                 <a href="index.html"><img src="assets/back.webp" alt="back arrow" width="38" height="38"></a>
-                <img src="assets/scriplessLogoTop.webp" alt="SCRIPTLESS logo" id="home" width="230" height="38">
-                <a id="logIn" href="signIn.html">sign in</a>
+                <a href="index.html"><img src="assets/scriplessLogoTop.webp" alt="SCRIPTLESS logo" id="home" width="230" height="38"></a>
+                <a href="signIn.html"><img src="assets/pfp-red.png" class="pfp" id="topPFP" width="40" height="40" alt="pfp image"></a>
             </header>
             <section id="comm">
                 <asside id="friends">
                     <h2>friends</h2>
-                    <div>
-                        <input type="text">
-                        <img src="assets/search white.webp" id="searchF" alt="search glyf">
+                    <div id="searchA">
+                        <input type="text" id="searchI">
+                        <img src="assets/search white.webp" id="searchB" alt="search glyf" width="20" height="20">
                     </div>
 
                 </asside>
@@ -48,13 +48,13 @@
                                     <option value="pfp-blue">blue</option>
                                     <option value="pfp-dblue">dark blue</option>
                                 </select>
-                                <img id="pfp" class="pfp" src="assets/pfp-red.png" alt="profile picture" width="40" height="40">
                             </div>
                         </div>
                 <div id="events"></div>
             </section>
         </main>
     <script type="module" src="script.js"></script>
+    <script type="module" src="userProfile.js"></script>
     <script type="module" src="community.js"></script>
     <!-- <script type="module" src="test.js"></script> -->
     </body>

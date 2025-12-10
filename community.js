@@ -215,7 +215,6 @@ onAuthStateChanged(auth, async (user) => {
 
   // PFP change listener
   pictSelectEl.addEventListener("change", async () => {
-    pfpEl.src = "assets/" + pictSelectEl.value + ".png";
     try {
       await setDoc(userDocRef, { pictSelect: pictSelectEl.value }, { merge: true });
     } catch (err) {

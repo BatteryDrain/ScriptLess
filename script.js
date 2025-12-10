@@ -1,3 +1,4 @@
+// --- Firebase imports ---
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -12,14 +13,16 @@ const firebaseConfig = {
   appId: "1:1098118128731:web:1f1ff538c82346c836cb7e"
 };
 
-// --- Initialize app ---
+// --- Initialize Firebase app (safe singleton) ---
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+
+// --- Initialize services ---
 const db = getFirestore(app);
 const auth = getAuth(app);
 
 // --- DOM elements ---
 const topPFP = document.getElementById("topPFP");
-const pictSelectEl = document.getElementById("pictSelect"); // user selects PFP in settings
+const pictSelectEl = document.getElementById("pictSelect");
 
 // --- Listen to auth changes ---
 onAuthStateChanged(auth, async (user) => {
@@ -31,27 +34,40 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  if (topPFP) topPFP.parentElement.href = "profile.html";
+  if (topPFP) {
+    // topPFP.parentElement.href = "/~bwebster/profile.html";
+  }
 
   // Load initial PFP from Firestore
   try {
     const userDocRef = doc(db, "Users", user.uid);
     const snap = await getDoc(userDocRef);
-    if (snap.exists()) {
-      const data = snap.data();
-      if (topPFP) topPFP.src = `assets/${data.pictSelect || "pfp-red"}.png`;
-      if (pictSelectEl) pictSelectEl.value = data.pictSelect || "pfp-red";
-    }
+
+if (!snap.exists()) {
+  // Create a default user document
+  await setDoc(userDocRef, { pictSelect: "pfp-red" }, { merge: true });
+
+  if (topPFP) topPFP.src = "assets/pfp-red.png";
+  if (pictSelectEl) pictSelectEl.value = "pfp-red";
+  return;
+}
+
+const data = snap.data();
+if (topPFP) topPFP.src = `assets/${data.pictSelect || "pfp-red"}.png`;
+if (pictSelectEl) pictSelectEl.value = data.pictSelect || "pfp-red";
+
   } catch (err) {
     console.error("Error loading user PFP:", err);
   }
 });
 
-// --- Update top PFP when user selects a new one ---
+// --- Save PFP selection ---
 if (pictSelectEl) {
   pictSelectEl.addEventListener("change", async () => {
     const newPFP = pictSelectEl.value;
-    if (topPFP) topPFP.src = `assets/${newPFP}.png`; // update top PFP immediately
+
+    if (topPFP)
+      topPFP.src = `assets/${newPFP}.png`;
 
     try {
       const user = auth.currentUser;
@@ -65,5 +81,5 @@ if (pictSelectEl) {
   });
 }
 
-// --- Export app & auth ---
+// --- Export for other modules ---
 export { app, auth };
