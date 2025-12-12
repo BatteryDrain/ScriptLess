@@ -126,18 +126,17 @@ addEventBtn.addEventListener("click", (e) => {
     }
 });
 
-const eventsRef = collection(db, "Events");
+const eventsRef = collection(db, "events");
 const snapshot = await getDocs(eventsRef);
 
 // -------- LOAD EVENTS -------------------
 async function loadEvents(currentUid) {
   try {
-    const eventsRef = collection(db, "events"); // collection name is lowercase
+    const eventsRef = collection(db, "events");
     const snapshot = await getDocs(eventsRef);
 
-    eventsContainer.innerHTML = ""; // clear old events
+    eventsContainer.innerHTML = "";
 
-    // Use for...of to handle async properly
     for (const docSnap of snapshot.docs) {
       const eventData = docSnap.data();
       const creatorId = eventData.userId;
@@ -151,7 +150,7 @@ async function loadEvents(currentUid) {
 
       if (creatorDoc.exists()) {
         const u = creatorDoc.data();
-        creatorName = u.username || ""; // fallback to empty string
+        creatorName = u.username || "";
         creatorPfp = u.pictSelect || "";
       }
 
@@ -169,6 +168,17 @@ async function loadEvents(currentUid) {
       );
 
       eventsContainer.appendChild(fig);
+
+      // Attach event listeners
+      const editBtn = fig.querySelector(".edit");
+      const deleteBtn = fig.querySelector(".delete");
+
+      if (editBtn) {
+        editBtn.addEventListener("click", () => editEvent(docSnap.id));
+      }
+      if (deleteBtn) {
+        deleteBtn.addEventListener("click", () => deleteEvent(docSnap.id));
+      }
     }
 
   } catch (err) {
@@ -182,48 +192,30 @@ onAuthStateChanged(auth, (user) => {
     loadEvents(user ? user.uid : null);
 });
 
-// --------- PROFILE SETUP (USERNAME & PFP) ---------
+// --------- PROFILE SETUP (USERNAME) ---------
 onAuthStateChanged(auth, async (user) => {
-  currentUser = user; // keep currentUser updated
-
   if (!user) return; // exit if no user
 
-  const userDocRef = doc(db, "Users", currentUser.uid);
+  const userDocRef = doc(db, "Users", user.uid);
 
-  // Ensure DOM elements exist
-  const pictSelectEl = document.getElementById("pictSelect");
+  // DOM elements
   const userNameEl = document.getElementById("userName");
-  const pfpEl = document.getElementById("pfp");
   const errorEl = document.getElementById("eror");
 
-  if (!pictSelectEl || !userNameEl || !pfpEl || !errorEl) return;
+  if (!userNameEl || !errorEl) return;
 
-  // Load existing user data
+  // Load existing username
   try {
     const snap = await getDoc(userDocRef);
     if (snap.exists()) {
       const data = snap.data();
       if (data.username) userNameEl.value = data.username;
-      if (data.pictSelect) {
-        pictSelectEl.value = data.pictSelect;
-        pfpEl.src = "assets/" + data.pictSelect + ".png";
-      }
     }
   } catch (err) {
-    console.error("Error loading user data:", err);
+    console.error("Error loading username:", err);
   }
 
-  // PFP change listener
-  pictSelectEl.addEventListener("change", async () => {
-    try {
-      await setDoc(userDocRef, { pictSelect: pictSelectEl.value }, { merge: true });
-    } catch (err) {
-      console.error("Error saving PFP:", err);
-      errorEl.textContent = "Could not save profile picture.";
-    }
-  });
-
-  // Username change listener
+  // Listen for username changes
   userNameEl.addEventListener("change", async () => {
     const username = userNameEl.value.trim();
     if (!username) {
@@ -234,12 +226,12 @@ onAuthStateChanged(auth, async (user) => {
     try {
       // Check for duplicates
       const qSnap = await getDocs(query(collection(db, "Users"), where("username", "==", username)));
-      if (!qSnap.empty && qSnap.docs.some(d => d.id !== currentUser.uid)) {
+      if (!qSnap.empty && qSnap.docs.some(d => d.id !== user.uid)) {
         errorEl.textContent = "Username already in use";
         return;
       }
 
-      // Save username
+      // Save new username
       await setDoc(userDocRef, { username }, { merge: true });
       errorEl.textContent = "Username set successfully!";
     } catch (err) {
@@ -248,3 +240,4 @@ onAuthStateChanged(auth, async (user) => {
     }
   });
 });
+

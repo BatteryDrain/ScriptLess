@@ -35,7 +35,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   if (topPFP) {
-    // topPFP.parentElement.href = "/~bwebster/profile.html";
+    // topPFP.parentElement.href = `${window.location.origin}/~bwebster/profile.html`;
   }
 
   // Load initial PFP from Firestore
